@@ -50,6 +50,19 @@ public class ConnectionFactory {
   }
 
   /**
+   * Return a {@link HttpURLConnection} that writes gets deep link information from {@code
+   * https://mobile-service.segment.com/deepli}nk.
+   */
+  public HttpURLConnection deepLink(String writeKey) throws IOException {
+    HttpURLConnection connection =
+        openConnection("https://mobile-service.segment.com/v1/attribution");
+    connection.setRequestProperty("Authorization", authorizationHeader(writeKey));
+    connection.setRequestMethod("POST");
+    connection.setDoOutput(true);
+    return connection;
+  }
+
+  /**
    * Configures defaults for connections opened with {@link #upload(String)},  {@link
    * #attribution(String)} and {@link #projectSettings(String)}.
    */

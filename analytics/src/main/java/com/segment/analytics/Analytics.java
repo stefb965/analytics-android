@@ -28,6 +28,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -358,6 +359,63 @@ public class Analytics {
     editor.putString(VERSION_KEY, currentVersion);
     editor.putInt(BUILD_KEY, currentBuild);
     editor.apply();
+  }
+
+  static class Result {
+    Intent intent;
+  }
+
+  abstract class DeepLinkHandler {
+    abstract void handleDeepLink(Result result);
+  }
+
+  public void getDeepLink(final DeepLinkHandler handler) {
+    analyticsExecutor.submit(new Runnable() {
+      @Override public void run() {
+        fetchDeepLinkInformation(new DeepLinkHandler() {
+          @Override void handleDeepLink(final Result result) {
+            HANDLER.post(new Runnable() {
+              @Override public void run() {
+                handler.handleDeepLink(result);
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+
+  @Private void fetchDeepLinkInformation(DeepLinkHandler handler) {
+    waitForAdvertisingId();
+
+    Client.Connection connection = null;
+    try {
+      connection = client.deepLink();
+
+      // Write the request body.
+      Writer writer = new BufferedWriter(new OutputStreamWriter(connection.os));
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("context", analyticsContext);
+      cartographer.toJson(body, writer);
+
+      // Read the response body.
+      Map<String, Object> response =
+          cartographer.fromJson(buffer(connection.connection.getInputStream()));
+
+      Bundle extras = new Bundle();
+      Utils.copy(extras, response);
+      Intent intent = new Intent();
+      intent.setAction(Intent.ACTION_VIEW);
+      intent.putExtras(extras);
+
+      Result result = new Result();
+      result.intent = intent;
+      handler.handleDeepLink(result);
+    } catch (IOException e) {
+      logger.error(e, "Unable to retrieve deeplink information.");
+    } finally {
+      closeQuietly(connection);
+    }
   }
 
   static PackageInfo getPackageInfo(Context context) {

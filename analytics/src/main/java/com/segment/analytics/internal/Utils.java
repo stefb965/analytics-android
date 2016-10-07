@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Process;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -366,6 +367,30 @@ public final class Utils {
   public static void createDirectory(File location) throws IOException {
     if (!(location.exists() || location.mkdirs() || location.isDirectory())) {
       throw new IOException("Could not create directory at " + location);
+    }
+  }
+
+  /** Copies all primitive values from {@code map} to {@code bundle}. */
+  public static <V> void copy(Bundle bundle, Map<String, V> map) {
+    for (Map.Entry<String, V> entry : map.entrySet()) {
+      String key = entry.getKey();
+      Object value = entry.getValue();
+      if (value == null) {
+        continue;
+      }
+      if (value instanceof Boolean) {
+        bundle.putBoolean(key, (boolean) value);
+      } else if (value instanceof String) {
+        bundle.putString(key, (String) value);
+      } else if (value instanceof Integer) {
+        bundle.putInt(key, (int) value);
+      } else if (value instanceof Long) {
+        bundle.putLong(key, (long) value);
+      } else if (value instanceof Float) {
+        bundle.putFloat(key, (float) value);
+      } else if (value instanceof Double) {
+        bundle.putDouble(key, (double) value);
+      }
     }
   }
 

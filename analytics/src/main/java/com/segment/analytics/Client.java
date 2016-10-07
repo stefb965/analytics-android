@@ -97,6 +97,11 @@ class Client {
     return createPostConnection(connection);
   }
 
+  Connection deepLink() throws IOException {
+    HttpURLConnection connection = connectionFactory.deepLink(writeKey);
+    return createPostConnection(connection);
+  }
+
   Connection fetchSettings() throws IOException {
     HttpURLConnection connection = connectionFactory.projectSettings(writeKey);
     int responseCode = connection.getResponseCode();
