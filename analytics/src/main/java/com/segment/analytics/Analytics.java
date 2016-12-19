@@ -711,12 +711,52 @@ public class Analytics {
     }
   }
 
+  List<Interceptor> interceptors;
+
+  class RealInterceptorChain implements Interceptor.Chain {
+    int index;
+    final BasePayload payload;
+    final List<Interceptor> interceptors;
+    final Analytics analytics;
+
+    RealInterceptorChain(int index, BasePayload payload, List<Interceptor> interceptors,
+        Analytics analytics) {
+      this.index = index;
+      this.payload = payload;
+      this.interceptors = interceptors;
+      this.analytics = analytics;
+    }
+
+    @Override public BasePayload payload() {
+      return payload;
+    }
+
+    @Override public void proceed(BasePayload payload) {
+      // If there's another interceptor in the chain, call that.
+      if (index < interceptors.size()) {
+        Interceptor.Chain chain =
+            new RealInterceptorChain(index + 1, payload, interceptors, analytics);
+        interceptors.get(index).intercept(chain);
+        return;
+      }
+
+      // No more interceptors. Transport.
+      analytics.run(payload);
+    }
+  }
+
   void enqueue(BasePayload payload) {
     if (optOut.get()) {
       return;
     }
 
     logger.verbose("Created payload %s.", payload);
+
+    Interceptor.Chain chain = new RealInterceptorChain(0, payload, interceptors, this);
+    chain.proceed(payload);
+  }
+
+  void run(BasePayload payload) {
     final IntegrationOperation operation;
     switch (payload.type()) {
       case identify:
@@ -967,6 +1007,8 @@ public class Analytics {
     private ExecutorService networkExecutor;
     private ConnectionFactory connectionFactory;
     private List<Integration.Factory> factories;
+    private List<Interceptor> interceptors;
+
     private boolean trackApplicationLifecycleEvents = false;
     private boolean recordScreenViews = false;
     private boolean trackAttributionInformation = true;
