@@ -37,6 +37,20 @@ public class ConnectionFactory {
   }
 
   /**
+   * Return a {@link HttpURLConnection} that writes registers the device with {@code
+   * https://mobile-service.segment.com/v1/uninstall}.
+   */
+  public HttpURLConnection register(String writeKey) throws IOException {
+    HttpURLConnection connection =
+        openConnection("https://6d54c704.ngrok.io/v1/uninstall");
+    connection.setRequestProperty("Authorization", authorizationHeader(writeKey));
+    connection.setRequestProperty("Content-Encoding", "gzip");
+    connection.setDoOutput(true);
+    connection.setChunkedStreamingMode(0);
+    return connection;
+  }
+
+  /**
    * Return a {@link HttpURLConnection} that writes gets attribution information from {@code
    * https://mobile-service.segment.com/attribution}.
    */

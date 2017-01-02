@@ -4,9 +4,17 @@ apply plugin: 'com.f2prateek.checkstyle'
 
 apply from: rootProject.file('gradle/android.gradle')
 
+android {
+  defaultConfig {
+    applicationId "com.segment.analytics.sample"
+  }
+}
+
 dependencies {
   compile project(':analytics')
-  compile project(':analytics-wear')
+  // compile project(':analytics-wear')
+
+  compile 'com.google.firebase:firebase-messaging:10.0.1'
 
   compile 'com.jakewharton:butterknife:8.4.0'
   provided 'com.jakewharton:butterknife-compiler:8.4.0'
@@ -17,3 +25,6 @@ checkstyle {
   configFile rootProject.file('gradle/checkstyle.xml')
   showViolations true
 }
+
+apply plugin: 'com.google.gms.google-services'
+

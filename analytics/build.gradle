@@ -9,5 +9,9 @@ checkstyle {
   showViolations true
 }
 
+dependencies {
+  provided 'com.google.firebase:firebase-messaging:10.0.1'
+}
+
 apply from: rootProject.file('gradle/attach-jar.gradle')
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

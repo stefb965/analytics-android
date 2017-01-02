@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "110767427491",
+    "firebase_url": "https://segment-mobile-service-test.firebaseio.com",
+    "project_id": "segment-mobile-service-test",
+    "storage_bucket": "segment-mobile-service-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110767427491:android:4f9a86074a7ddc80",
+        "android_client_info": {
+          "package_name": "com.segment.analytics.sample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "110767427491-iten9tpqdh2efim1e9m0ajlj3fgaqpkm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7tRISyhJofXM3PVSnd-pgmH33a-tRAlU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

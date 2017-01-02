@@ -97,6 +97,11 @@ class Client {
     return createPostConnection(connection);
   }
 
+  Connection register() throws IOException {
+    HttpURLConnection connection = connectionFactory.register(writeKey);
+    return createPostConnection(connection);
+  }
+
   Connection fetchSettings() throws IOException {
     HttpURLConnection connection = connectionFactory.projectSettings(writeKey);
     int responseCode = connection.getResponseCode();

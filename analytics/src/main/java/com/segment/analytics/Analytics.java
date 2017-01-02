@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.segment.analytics.integrations.AliasPayload;
 import com.segment.analytics.integrations.BasePayload;
 import com.segment.analytics.integrations.GroupPayload;
@@ -245,6 +246,8 @@ public class Analytics {
 
     logger.debug("Created analytics client for project with tag:%s.", tag);
 
+    registerPushToken();
+
     application.registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
       final AtomicBoolean trackedApplicationLifecycleEvents = new AtomicBoolean(false);
 
@@ -320,6 +323,40 @@ public class Analytics {
       trackedAttribution.set(true);
     } catch (IOException e) {
       logger.error(e, "Unable to track attribution information. Retrying on next launch.");
+    } finally {
+      closeQuietly(connection);
+    }
+  }
+
+  void registerPushToken() {
+    analyticsExecutor.submit(new Runnable() {
+      @Override public void run() {
+        registerFcmId();
+      }
+    });
+  }
+
+  void registerFcmId() {
+    String token = FirebaseInstanceId.getInstance().getToken();
+
+    Client.Connection connection = null;
+    try {
+      connection = client.register();
+
+      // Write the request body.
+      Map<String, Object> body = new ValueMap() //
+          .putValue("platform", "android") //
+          .putValue("registration_id", token) //
+          .putValue("device_id", Utils.getDeviceId(application)) //
+          .putValue("user_id", traitsCache.get().userId()) //
+          .putValue("anonymous_id", traitsCache.get().anonymousId());
+
+      Writer writer = new BufferedWriter(new OutputStreamWriter(connection.os));
+      cartographer.toJson(body, writer);
+    } catch (IOException e) {
+      logger.error(e, "Unable to register FCM token.");
+    } catch (Exception e) {
+      logger.error(e, "Unable to register FCM token.");
     } finally {
       closeQuietly(connection);
     }
